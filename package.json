@@ -8,6 +8,7 @@
     "check": "bunx biome check ./src"
   },
   "dependencies": {
+    "@hono/zod-openapi": "^0.19.2",
     "hono": "^4.7.2"
   },
   "devDependencies": {
