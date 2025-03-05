@@ -1,6 +1,9 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "petcare-api",
-  "main": "src/index.ts",
-  "compatibility_date": "2025-03-04"
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "petcare-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-03-04",
+	"vars": {
+		"NODE_ENV": "development"
+	}
 }
