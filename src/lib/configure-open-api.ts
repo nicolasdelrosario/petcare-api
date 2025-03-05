@@ -8,8 +8,9 @@ export function configureOpenApi(app: AppOpenApi) {
 	app.doc("/doc", {
 		openapi: "3.0.0",
 		info: {
-			version: packageJSON.version,
 			title: packageJSON.name,
+			version: packageJSON.version,
+			description: packageJSON.description,
 		},
 	});
 

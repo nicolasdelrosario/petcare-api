@@ -1,6 +1,7 @@
 {
   "name": "petcare-api",
   "version": "1.0.0",
+  "description": "Petcare API",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
