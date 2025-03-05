@@ -21,7 +21,8 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"noUnusedImports": "warn"
+				"noUnusedImports": "warn",
+				"noUnusedVariables": "warn"
 			},
 			"nursery": {
 				"useSortedClasses": {
@@ -29,6 +30,16 @@
 					"level": "warn",
 					"fix": "safe"
 				}
+			},
+			"style": {
+				"noDefaultExport": "warn",
+				"noInferrableTypes": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noConsole": "warn",
+				"useAwait": "warn",
+				"useGetterReturn": "warn"
 			}
 		}
 	},
