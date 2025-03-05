@@ -13,6 +13,7 @@
   "dependencies": {
     "@hono/zod-openapi": "^0.19.2",
     "@scalar/hono-api-reference": "^0.5.180",
+    "drizzle-orm": "^0.40.0",
     "hono": "^4.7.2",
     "zod": "^3.24.2"
   },
