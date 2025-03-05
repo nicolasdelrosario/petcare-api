@@ -3,9 +3,9 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
-    "format": "bunx biome format --write ./src",
-    "lint": "bunx biome lint --write ./src",
-    "check": "bunx biome check ./src",
+    "format": "bunx biome format --write src",
+    "lint": "bunx biome lint --write src",
+    "check": "bunx biome check src",
     "prepare": "husky"
   },
   "dependencies": {
@@ -18,5 +18,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "wrangler": "^3.109.2"
+  },
+  "lint-staged": {
+    "src/*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+      "biome check --write --no-errors-on-unmatched"
+    ]
   }
 }
