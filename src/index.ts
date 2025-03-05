@@ -1,9 +1,4 @@
-import { Hono } from "hono";
+import { app } from "@/app";
 
-const app = new Hono();
-
-app.get("/", (c) => {
-	return c.text("Hello Hono!");
-});
-
+// biome-ignore lint/style/noDefaultExport: Required for Hono app initialization.
 export default app;
