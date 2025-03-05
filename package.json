@@ -10,7 +10,7 @@
 		"check": "bunx biome check src",
 		"prepare": "husky",
 		"generate": "drizzle-kit generate",
-		"migrate": "drizzle-kit migrate"
+		"migrate": "bunx wrangler d1 execute petcare-db --local --file=./drizzle/$MIGRATION_FILE"
 	},
 	"dependencies": {
 		"@hono/zod-openapi": "^0.19.2",
