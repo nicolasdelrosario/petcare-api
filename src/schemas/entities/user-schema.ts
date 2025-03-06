@@ -16,7 +16,9 @@ export const insertUserSchema = createInsertSchema(users)
 		email: z.string().email(),
 		password: z.string().min(6),
 		phone: z.string().optional(),
-		role: z.string().default("receptionist"),
+		role: z
+			.enum(["admin", "vet", "receptionist", "owner"])
+			.default("receptionist"),
 	})
 	.omit({
 		id: true,
