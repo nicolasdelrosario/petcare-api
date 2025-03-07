@@ -31,4 +31,16 @@ export const login = createRoute({
 	},
 });
 
+export const logout = createRoute({
+	method: "post",
+	path: "/logout",
+	tags,
+	responses: {
+		[HttpStatusCodes.OK]: {
+			description: "Logout successful",
+		},
+	},
+});
+
 export type LoginRoute = typeof login;
+export type LogoutRoute = typeof logout;
