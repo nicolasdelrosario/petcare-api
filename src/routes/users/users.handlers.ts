@@ -11,6 +11,7 @@ import type {
 	PatchRoute,
 	RemoveRoute,
 } from "@/routes/users/users.routes";
+import { IdParamsSchema } from "@/schemas/id-params";
 import { capitalizeWords } from "@/utils/capitalize";
 import { sanitizeUser, sanitizeUsers } from "@/utils/user-sanitization";
 import { and, eq } from "drizzle-orm";
@@ -49,7 +50,7 @@ export const create: AppRouteHandler<CreateRoute> = async (c) => {
 
 export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 	const db = createDB(c.env.DB);
-	const { id } = c.req.valid("param");
+	const { id } = IdParamsSchema.parse(c.req.param());
 
 	const user = await db.query.users.findFirst({
 		where(fields, operators) {
@@ -72,8 +73,8 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 
 export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 	const db = createDB(c.env.DB);
-	const { id } = c.req.valid("param");
-	const updates = c.req.valid("json");
+	const { id } = IdParamsSchema.parse(c.req.param());
+	const updates = await c.req.json();
 	const { email } = updates;
 
 	if (email && (await isEmailTaken(db, email))) {
@@ -101,7 +102,7 @@ export const patch: AppRouteHandler<PatchRoute> = async (c) => {
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 	const db = createDB(c.env.DB);
-	const { id } = c.req.valid("param");
+	const { id } = IdParamsSchema.parse(c.req.param());
 	const [deleted] = await db
 		.delete(users)
 		.where(and(eq(users.id, id), eq(users.isActive, true)))
