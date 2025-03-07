@@ -5,7 +5,7 @@ import { verifyPassword } from "@/helpers/auth-helper";
 import type { AppRouteHandler } from "@/lib/types";
 import { setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
-import type { LoginRoute } from "./auth.routes";
+import type { LoginRoute, LogoutRoute } from "./auth.routes";
 
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
 	const db = createDB(c.env.DB);
@@ -50,7 +50,7 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
 	setCookie(c, "token", token, {
 		httpOnly: true,
 		secure: c.env.NODE_ENV === "production",
-		sameSite: c.env.NODE_ENV === "production" ? "Strict" : "Lax",
+		sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
 		maxAge: 60 * 60 * 10,
 	});
 
@@ -62,4 +62,15 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
 		},
 		HttpStatusCodes.OK,
 	);
+};
+
+export const logout: AppRouteHandler<LogoutRoute> = (c) => {
+	setCookie(c, "token", "", {
+		httpOnly: true,
+		secure: c.env.NODE_ENV === "production",
+		sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
+		maxAge: 60 * 60 * 10,
+	});
+
+	return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
 };
