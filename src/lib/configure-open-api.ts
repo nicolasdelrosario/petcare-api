@@ -20,6 +20,12 @@ export function configureOpenApi(app: AppOpenApi) {
 		bearerFormat: "JWT",
 	});
 
+	app.openAPIRegistry.registerComponent("securitySchemes", "cookieAuth", {
+		type: "apiKey",
+		in: "cookie",
+		name: "token",
+	});
+
 	app.get(
 		"/reference",
 		apiReference({
