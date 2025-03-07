@@ -23,7 +23,7 @@ export const list = createRoute({
 	method: "get",
 	path: "/users",
 	tags,
-	security: [{ bearerAuth: [] }],
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 	responses: {
 		[HttpStatusCodes.OK]: jsonContent(
 			z.array(selectedUserSchema),
@@ -36,7 +36,7 @@ export const create = createRoute({
 	method: "post",
 	path: "/users",
 	tags,
-	security: [{ bearerAuth: [] }],
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 	request: {
 		body: jsonContentRequired(insertUserSchema, "The user to create"),
 	},
@@ -61,6 +61,7 @@ export const getOne = createRoute({
 	method: "get",
 	path: "/users/{id}",
 	tags,
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 	request: {
 		params: IdParamsSchema,
 	},
@@ -78,6 +79,7 @@ export const patch = createRoute({
 	method: "patch",
 	path: "/users/{id}",
 	tags,
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 	request: {
 		params: IdParamsSchema,
 		body: jsonContentRequired(patchUserSchema, "The updated user"),
@@ -104,6 +106,7 @@ export const remove = createRoute({
 	method: "delete",
 	path: "/users/{id}",
 	tags,
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
 	request: {
 		params: IdParamsSchema,
 	},
