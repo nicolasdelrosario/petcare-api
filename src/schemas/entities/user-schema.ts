@@ -14,6 +14,7 @@ export const insertUserSchema = createInsertSchema(users)
 	.extend({
 		name: z.string().min(3),
 		email: z.string().email(),
+		workspaceId: z.number(),
 		password: z.string().min(6),
 		phone: z.string().optional(),
 		role: z
