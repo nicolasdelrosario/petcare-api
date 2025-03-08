@@ -5,7 +5,8 @@ export const workspaces = sqliteTable("workspaces", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	name: text("name").notNull(),
 	slug: text("slug").notNull().unique(),
-	location: text("location").notNull(),
+	description: text("description"),
+	location: text("location"),
 	createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 	updatedAt: text("updated_at")
 		.notNull()

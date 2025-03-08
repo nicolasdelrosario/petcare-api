@@ -3,6 +3,7 @@ import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const selectedWorkspaceSchema = createSelectSchema(workspaces).extend({
+	description: z.string().nullable(),
 	location: z.string().nullable(),
 });
 
@@ -10,6 +11,7 @@ export const insertWorkspaceSchema = createSelectSchema(workspaces)
 	.extend({
 		name: z.string().min(3),
 		slug: z.string().min(3),
+		description: z.string().min(10).max(500).optional(),
 		location: z.string().optional(),
 	})
 	.omit({
