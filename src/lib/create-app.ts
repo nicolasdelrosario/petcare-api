@@ -10,6 +10,7 @@ import { onError } from "@/middleware/on-error";
 import { serveEmojiFavicon } from "@/middleware/serve-emoji-favicon";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
+import { timeout } from "hono/timeout";
 
 export function createRouter() {
 	return new OpenAPIHono<Env>({
@@ -20,6 +21,8 @@ export function createRouter() {
 
 export function createApp() {
 	const app = createRouter();
+
+	app.use(timeout(5000));
 
 	app.use(
 		cors({
