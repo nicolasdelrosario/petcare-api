@@ -1,5 +1,5 @@
-import { createSelectSchema } from "drizzle-zod";
 import { workspaces } from "@/db/schemas/workspaces";
+import { createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const selectedWorkspaceSchema = createSelectSchema(workspaces).extend({
