@@ -9,6 +9,7 @@ import { notFound } from "@/middleware/not-found";
 import { onError } from "@/middleware/on-error";
 import { serveEmojiFavicon } from "@/middleware/serve-emoji-favicon";
 import { cors } from "hono/cors";
+import { prettyJSON } from "hono/pretty-json";
 
 export function createRouter() {
 	return new OpenAPIHono<Env>({
@@ -30,6 +31,7 @@ export function createApp() {
 	app.use(serveEmojiFavicon("🐇"));
 	app.use(logger());
 	app.use(authMiddleware);
+	app.use(prettyJSON());
 
 	app.notFound(notFound);
 	app.onError(onError);
