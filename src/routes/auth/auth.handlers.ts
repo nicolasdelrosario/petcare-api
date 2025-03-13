@@ -1,22 +1,19 @@
 import * as HttpStatusCodes from "@/constants/http-status-codes";
 import * as HttpStatusPhrases from "@/constants/http-status-phrases";
 import { createDB } from "@/db";
+import { users } from "@/db/schemas/users";
+import { workspaces } from "@/db/schemas/workspaces";
 import { verifyPassword } from "@/helpers/auth-helper";
 import type { AppRouteHandler } from "@/lib/types";
+import { sanitizeUser } from "@/utils/user-sanitization";
+import { and, eq } from "drizzle-orm";
 import { setCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
-import type { LoginRoute, LogoutRoute } from "./auth.routes";
+import type { GetMeRoute, LoginRoute, LogoutRoute } from "./auth.routes";
 
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
 	const db = createDB(c.env.DB);
 	const { email, password } = await c.req.json();
-
-	if (!email || !password) {
-		return c.json(
-			{ message: HttpStatusPhrases.BAD_REQUEST },
-			HttpStatusCodes.BAD_REQUEST,
-		);
-	}
 
 	const foundUser = await db.query.users.findFirst({
 		where(fields, operators) {
@@ -69,8 +66,41 @@ export const logout: AppRouteHandler<LogoutRoute> = (c) => {
 		httpOnly: true,
 		secure: c.env.NODE_ENV === "production",
 		sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
-		maxAge: 60 * 60 * 10,
+		maxAge: 0,
 	});
 
 	return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
+};
+
+export const getMe: AppRouteHandler<GetMeRoute> = async (c) => {
+	const db = createDB(c.env.DB);
+	const jwtPayload = c.get("jwtPayload");
+
+	if (!jwtPayload || !jwtPayload.id) {
+		return c.json(
+			{ message: HttpStatusPhrases.UNAUTHORIZED },
+			HttpStatusCodes.UNAUTHORIZED,
+		);
+	}
+
+	const result = await db
+		.select({
+			user: users,
+			workspace: workspaces,
+		})
+		.from(users)
+		.innerJoin(workspaces, eq(users.workspaceId, workspaces.id))
+		.where(and(eq(users.id, jwtPayload.id), eq(users.isActive, true)))
+		.limit(1);
+
+	const { user, workspace } = result[0];
+
+	const sanitizedUser = sanitizeUser(user);
+	return c.json(
+		{
+			...sanitizedUser,
+			workspace,
+		},
+		HttpStatusCodes.OK,
+	);
 };
