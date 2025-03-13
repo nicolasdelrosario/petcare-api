@@ -3,7 +3,13 @@ import { createRoute } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "@/constants/http-status-codes";
 import { jsonContent } from "@/helpers/json-content";
 import { jsonContentRequired } from "@/helpers/json-content-required";
-import { badRequestSchema, unauthorizedSchema } from "@/lib/constants";
+import {
+	badRequestSchema,
+	notFoundSchema,
+	unauthorizedSchema,
+} from "@/lib/constants";
+import { selectedUserSchema } from "@/schemas/entities/user-schema";
+import { selectedWorkspaceSchema } from "@/schemas/entities/workspace-schema";
 import { loginResponseSchema, loginUserSchema } from "@/schemas/login-schema";
 
 const tags = ["Auth"];
@@ -42,5 +48,26 @@ export const logout = createRoute({
 	},
 });
 
+export const getMe = createRoute({
+	method: "get",
+	path: "/me",
+	tags,
+	security: [{ bearerAuth: [] }, { cookieAuth: [] }],
+	responses: {
+		[HttpStatusCodes.OK]: jsonContent(
+			selectedUserSchema.extend({
+				workspace: selectedWorkspaceSchema,
+			}),
+			"The current user",
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Invalid credentials",
+		),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(notFoundSchema, "User not found"),
+	},
+});
+
 export type LoginRoute = typeof login;
 export type LogoutRoute = typeof logout;
+export type GetMeRoute = typeof getMe;
