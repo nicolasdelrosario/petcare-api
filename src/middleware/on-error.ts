@@ -11,7 +11,7 @@ export const onError: ErrorHandler = (err, c) => {
 		currentStatus !== OK ? currentStatus : INTERNAL_SERVER_ERROR;
 
 	// only show stack trace in development
-	const isProd = c.env && c.env.NODE_ENV === "development";
+	const isProd = c.env && c.env.NODE_ENV === "production";
 
 	return c.json(
 		{
