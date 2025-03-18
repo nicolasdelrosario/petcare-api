@@ -16,7 +16,7 @@ export const insertUserSchema = createInsertSchema(users)
 		email: z.string().email(),
 		workspaceId: z.number(),
 		password: z.string().min(6),
-		phone: z.string().optional(),
+		phone: z.string().nullable().optional(),
 		role: z
 			.enum(["admin", "vet", "receptionist", "owner"])
 			.default("receptionist"),
