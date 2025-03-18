@@ -14,11 +14,9 @@ export const authMiddleware = async (c: Context<Env>, next: Next) => {
 
 	const authHeader = c.req.header("Authorization");
 	const cookieToken = getCookie(c, "token");
-
-	let token = cookieToken;
-	if (authHeader?.startsWith("Bearer ")) {
-		token = authHeader.substring(7);
-	}
+	const token = authHeader?.startsWith("Bearer ")
+		? authHeader.substring(7)
+		: cookieToken;
 
 	if (!token) {
 		return c.json(
@@ -29,16 +27,9 @@ export const authMiddleware = async (c: Context<Env>, next: Next) => {
 
 	try {
 		const payload = await verify(token, c.env.JWT_SECRET_KEY);
-
-		if (!payload) {
-			return c.json(
-				{ message: HttpStatusPhrases.UNAUTHORIZED },
-				HttpStatusCodes.UNAUTHORIZED,
-			);
-		}
+		if (!payload) throw new Error("Invalid token");
 
 		c.set("jwtPayload", payload);
-
 		return next();
 	} catch {
 		return c.json(
