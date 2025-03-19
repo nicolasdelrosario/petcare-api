@@ -22,3 +22,7 @@ export const insertWorkspaceSchema = createSelectSchema(workspaces)
 	});
 
 export const patchWorkspaceSchema = insertWorkspaceSchema.partial();
+
+export type SelectWorkspaceSchema = z.infer<typeof selectedWorkspaceSchema>;
+export type InsertWorkspaceSchema = z.infer<typeof insertWorkspaceSchema>;
+export type PatchWorkspaceSchema = z.infer<typeof patchWorkspaceSchema>;
