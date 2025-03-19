@@ -7,6 +7,7 @@ import { jsonContentRequired } from "@/helpers/json-content-required";
 import {
 	badRequestSchema,
 	conflictSchema,
+	forbiddenSchema,
 	notFoundSchema,
 } from "@/lib/constants";
 import { createErrorSchema } from "@/schemas/create-error-schema";
@@ -28,6 +29,7 @@ export const list = createRoute({
 			z.array(selectedWorkspaceSchema),
 			"List of workspaces",
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
 	},
 });
 
@@ -43,22 +45,23 @@ export const create = createRoute({
 			selectedWorkspaceSchema,
 			"The created workspace",
 		),
-		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
-			createErrorSchema(insertWorkspaceSchema),
-			"The validation error(s)",
-		),
-		[HttpStatusCodes.CONFLICT]: jsonContent(
-			conflictSchema,
-			"Slug already in use",
-		),
 		[HttpStatusCodes.BAD_REQUEST]: jsonContent(
 			badRequestSchema,
 			"Bad request error",
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
+		[HttpStatusCodes.CONFLICT]: jsonContent(
+			conflictSchema,
+			"Slug already in use",
+		),
+		[HttpStatusCodes.UNPROCESSABLE_ENTITY]: jsonContent(
+			createErrorSchema(insertWorkspaceSchema),
+			"The validation error(s)",
+		),
 	},
 });
 
-export const getOne = createRoute({
+export const getOneById = createRoute({
 	method: "get",
 	path: "/workspaces/{id}",
 	tags,
@@ -70,6 +73,7 @@ export const getOne = createRoute({
 			selectedWorkspaceSchema,
 			"The requested workspace",
 		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
 			notFoundSchema,
 			"Workspace not found",
@@ -94,13 +98,14 @@ export const patch = createRoute({
 			selectedWorkspaceSchema,
 			"The updated workspace",
 		),
-		[HttpStatusCodes.NOT_FOUND]: jsonContent(
-			notFoundSchema,
-			"Workspace not found",
-		),
 		[HttpStatusCodes.BAD_REQUEST]: jsonContent(
 			badRequestSchema,
 			"Bad request error",
+		),
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(conflictSchema, "Access denied"),
+		[HttpStatusCodes.NOT_FOUND]: jsonContent(
+			notFoundSchema,
+			"Workspace not found",
 		),
 		[HttpStatusCodes.CONFLICT]: jsonContent(
 			conflictSchema,
@@ -127,6 +132,7 @@ export const remove = createRoute({
 		[HttpStatusCodes.NO_CONTENT]: {
 			description: "Workspace deleted",
 		},
+		[HttpStatusCodes.FORBIDDEN]: jsonContent(conflictSchema, "Access denied"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
 			notFoundSchema,
 			"Workspace not found",
@@ -140,6 +146,6 @@ export const remove = createRoute({
 
 export type ListRoute = typeof list;
 export type CreateRoute = typeof create;
-export type GetOneRoute = typeof getOne;
+export type GetOneByIdRoute = typeof getOneById;
 export type PatchRoute = typeof patch;
 export type RemoveRoute = typeof remove;
