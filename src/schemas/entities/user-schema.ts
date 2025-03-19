@@ -31,3 +31,7 @@ export const insertUserSchema = createInsertSchema(users)
 export const patchUserSchema = insertUserSchema.partial().omit({
 	password: true,
 });
+
+export type SelectUserSchema = z.infer<typeof selectedUserSchema>;
+export type InsertUserSchema = z.infer<typeof insertUserSchema>;
+export type PatchUserSchema = z.infer<typeof patchUserSchema>;
