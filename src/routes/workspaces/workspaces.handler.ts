@@ -1,7 +1,7 @@
 import type { AppRouteHandler } from "@/lib/types";
 import type {
 	CreateRoute,
-	GetOneRoute,
+	GetOneByIdRoute,
 	ListRoute,
 	PatchRoute,
 	RemoveRoute,
@@ -11,38 +11,39 @@ import * as HttpStatusCodes from "@/constants/http-status-codes";
 import * as HttpStatusPhrases from "@/constants/http-status-phrases";
 import { createDB } from "@/db";
 import { workspaces } from "@/db/schemas/workspaces";
+import { ROLE } from "@/permissions/roles";
 import { and, eq } from "drizzle-orm";
 
 export const list: AppRouteHandler<ListRoute> = async (c) => {
 	const db = createDB(c.env.DB);
-	const workspace = await db.query.workspaces.findMany({
+	const currentUser = c.get("jwtPayload");
+
+	if (currentUser.role === ROLE.ADMIN) {
+		const workspaces = await db.query.workspaces.findMany({
+			where(fields, operators) {
+				return operators.eq(fields.isActive, true);
+			},
+		});
+
+		return c.json(workspaces, HttpStatusCodes.OK);
+	}
+
+	const workspaces = await db.query.workspaces.findMany({
 		where(fields, operators) {
-			return operators.eq(fields.isActive, true);
+			return operators.and(
+				operators.eq(fields.isActive, true),
+				operators.eq(fields.id, currentUser.workspaceId),
+			);
 		},
 	});
 
-	return c.json(workspace);
+	return c.json(workspaces, HttpStatusCodes.OK);
 };
 
-export const create: AppRouteHandler<CreateRoute> = async (c) => {
-	const db = createDB(c.env.DB);
-	const workspace = await c.req.json();
-	const { slug } = workspace;
-
-	if (await isSlugTaken(db, slug)) {
-		return c.json(
-			{ message: HttpStatusPhrases.CONFLICT },
-			HttpStatusCodes.CONFLICT,
-		);
-	}
-
-	const [inserted] = await db.insert(workspaces).values(workspace).returning();
-	return c.json(inserted, HttpStatusCodes.CREATED);
-};
-
-export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
+export const getOneById: AppRouteHandler<GetOneByIdRoute> = async (c) => {
 	const db = createDB(c.env.DB);
 	const { id } = c.req.valid("param");
+
 	const workspace = await db.query.workspaces.findFirst({
 		where(fields, operators) {
 			return operators.and(
@@ -62,38 +63,64 @@ export const getOne: AppRouteHandler<GetOneRoute> = async (c) => {
 	return c.json(workspace, HttpStatusCodes.OK);
 };
 
-export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+export const create: AppRouteHandler<CreateRoute> = async (c) => {
 	const db = createDB(c.env.DB);
-	const { id } = c.req.valid("param");
-	const updates = c.req.valid("json");
-	const { slug } = updates;
+	const workspace = await c.req.json();
 
-	if (slug && (await isSlugTaken(db, slug))) {
+	if (workspace.slug && (await isSlugTaken(db, workspace.slug))) {
 		return c.json(
 			{ message: HttpStatusPhrases.CONFLICT },
 			HttpStatusCodes.CONFLICT,
 		);
 	}
 
-	const [workspace] = await db
-		.update(workspaces)
-		.set(updates)
-		.where(and(eq(workspaces.id, id), eq(workspaces.isActive, true)))
-		.returning();
+	const [inserted] = await db.insert(workspaces).values(workspace).returning();
+	return c.json(inserted, HttpStatusCodes.CREATED);
+};
 
-	if (!workspace) {
+export const patch: AppRouteHandler<PatchRoute> = async (c) => {
+	const db = createDB(c.env.DB);
+	const { id } = c.req.valid("param");
+	const updates = c.req.valid("json");
+
+	const existingWorkspace = await db.query.workspaces.findFirst({
+		where(fields, operators) {
+			return operators.and(
+				operators.eq(fields.id, id),
+				operators.eq(fields.isActive, true),
+			);
+		},
+	});
+
+	if (!existingWorkspace) {
 		return c.json(
 			{ message: HttpStatusPhrases.NOT_FOUND },
 			HttpStatusCodes.NOT_FOUND,
 		);
 	}
 
-	return c.json(workspace, HttpStatusCodes.OK);
+	if (updates.slug && updates.slug !== existingWorkspace.slug) {
+		if (await isSlugTaken(db, updates.slug)) {
+			return c.json(
+				{ message: HttpStatusPhrases.CONFLICT },
+				HttpStatusCodes.CONFLICT,
+			);
+		}
+	}
+
+	const [updated] = await db
+		.update(workspaces)
+		.set(updates)
+		.where(eq(workspaces.id, id))
+		.returning();
+
+	return c.json(updated, HttpStatusCodes.OK);
 };
 
 export const remove: AppRouteHandler<RemoveRoute> = async (c) => {
 	const db = createDB(c.env.DB);
 	const { id } = c.req.valid("param");
+
 	const [deleted] = await db
 		.delete(workspaces)
 		.where(and(eq(workspaces.id, id), eq(workspaces.isActive, true)))
