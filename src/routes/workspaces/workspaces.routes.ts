@@ -9,6 +9,7 @@ import {
 	conflictSchema,
 	forbiddenSchema,
 	notFoundSchema,
+	unauthorizedSchema,
 } from "@/lib/constants";
 import { createErrorSchema } from "@/schemas/create-error-schema";
 import {
@@ -29,6 +30,10 @@ export const list = createRoute({
 			z.array(selectedWorkspaceSchema),
 			"List of workspaces",
 		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Unauthorized",
+		),
 		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
 	},
 });
@@ -48,6 +53,10 @@ export const create = createRoute({
 		[HttpStatusCodes.BAD_REQUEST]: jsonContent(
 			badRequestSchema,
 			"Bad request error",
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Unauthorized",
 		),
 		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
 		[HttpStatusCodes.CONFLICT]: jsonContent(
@@ -72,6 +81,10 @@ export const getOneById = createRoute({
 		[HttpStatusCodes.OK]: jsonContent(
 			selectedWorkspaceSchema,
 			"The requested workspace",
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Unauthorized",
 		),
 		[HttpStatusCodes.FORBIDDEN]: jsonContent(forbiddenSchema, "Access denied"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -101,6 +114,10 @@ export const patch = createRoute({
 		[HttpStatusCodes.BAD_REQUEST]: jsonContent(
 			badRequestSchema,
 			"Bad request error",
+		),
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Unauthorized",
 		),
 		[HttpStatusCodes.FORBIDDEN]: jsonContent(conflictSchema, "Access denied"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
@@ -132,6 +149,10 @@ export const remove = createRoute({
 		[HttpStatusCodes.NO_CONTENT]: {
 			description: "Workspace deleted",
 		},
+		[HttpStatusCodes.UNAUTHORIZED]: jsonContent(
+			unauthorizedSchema,
+			"Unauthorized",
+		),
 		[HttpStatusCodes.FORBIDDEN]: jsonContent(conflictSchema, "Access denied"),
 		[HttpStatusCodes.NOT_FOUND]: jsonContent(
 			notFoundSchema,
