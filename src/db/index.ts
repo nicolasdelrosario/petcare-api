@@ -6,11 +6,11 @@ import { drizzle } from "drizzle-orm/d1";
 
 // schemas
 export const schema = {
-	users,
-	workspaces,
+  users,
+  workspaces,
 } as const;
 
 // initialization of db
 export const createDB = (d1: D1Database): DrizzleD1Database<typeof schema> => {
-	return drizzle(d1, { schema });
+  return drizzle(d1, { schema });
 };

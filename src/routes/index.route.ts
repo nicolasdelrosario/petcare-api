@@ -8,23 +8,23 @@ import { createMessageObjectSchema } from "@/schemas/create-message-object";
 export const tags = ["Index"];
 
 export const router = createRouter().openapi(
-	createRoute({
-		method: "get",
-		path: "/",
-		tags,
-		responses: {
-			[HttpStatusCodes.OK]: jsonContent(
-				createMessageObjectSchema("Petcare API"),
-				"Petcare API Index",
-			),
-		},
-	}),
-	(c) => {
-		return c.json(
-			{
-				message: "Petcare API",
-			},
-			HttpStatusCodes.OK,
-		);
-	},
+  createRoute({
+    method: "get",
+    path: "/",
+    tags,
+    responses: {
+      [HttpStatusCodes.OK]: jsonContent(
+        createMessageObjectSchema("Petcare API"),
+        "Petcare API Index",
+      ),
+    },
+  }),
+  (c) => {
+    return c.json(
+      {
+        message: "Petcare API",
+      },
+      HttpStatusCodes.OK,
+    );
+  },
 );

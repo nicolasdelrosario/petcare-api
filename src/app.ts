@@ -12,7 +12,7 @@ const routes = [index, auth, users, workspaces] as const;
 configureOpenApi(app);
 
 for (const route of routes) {
-	app.route("/", route);
+  app.route("/", route);
 }
 
 export { app };

@@ -13,31 +13,31 @@ import { prettyJSON } from "hono/pretty-json";
 import { timeout } from "hono/timeout";
 
 export function createRouter() {
-	return new OpenAPIHono<Env>({
-		strict: false,
-		defaultHook,
-	});
+  return new OpenAPIHono<Env>({
+    strict: false,
+    defaultHook,
+  });
 }
 
 export function createApp() {
-	const app = createRouter();
+  const app = createRouter();
 
-	app.use(timeout(5000));
+  app.use(timeout(5000));
 
-	app.use(
-		cors({
-			origin: "*",
-			credentials: true,
-		}),
-	);
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    }),
+  );
 
-	app.use(serveEmojiFavicon("🐇"));
-	app.use(logger());
-	app.use(authMiddleware);
-	app.use(prettyJSON());
+  app.use(serveEmojiFavicon("🐇"));
+  app.use(logger());
+  app.use(authMiddleware);
+  app.use(prettyJSON());
 
-	app.notFound(notFound);
-	app.onError(onError);
+  app.notFound(notFound);
+  app.onError(onError);
 
-	return app;
+  return app;
 }

@@ -12,102 +12,102 @@ import { sign } from "hono/jwt";
 import type { GetMeRoute, LoginRoute, LogoutRoute } from "./auth.routes";
 
 export const login: AppRouteHandler<LoginRoute> = async (c) => {
-	const db = createDB(c.env.DB);
-	const { email, password } = await c.req.json();
+  const db = createDB(c.env.DB);
+  const { email, password } = await c.req.json();
 
-	const foundUser = await db.query.users.findFirst({
-		where(fields, operators) {
-			return operators.eq(fields.email, email);
-		},
-	});
+  const foundUser = await db.query.users.findFirst({
+    where(fields, operators) {
+      return operators.eq(fields.email, email);
+    },
+  });
 
-	if (!foundUser) {
-		return c.json(
-			{ message: HttpStatusPhrases.UNAUTHORIZED },
-			HttpStatusCodes.UNAUTHORIZED,
-		);
-	}
+  if (!foundUser) {
+    return c.json(
+      { message: HttpStatusPhrases.UNAUTHORIZED },
+      HttpStatusCodes.UNAUTHORIZED,
+    );
+  }
 
-	const validatePassword = await verifyPassword(password, foundUser.password);
+  const validatePassword = await verifyPassword(password, foundUser.password);
 
-	if (!validatePassword) {
-		return c.json(
-			{ message: HttpStatusPhrases.UNAUTHORIZED },
-			HttpStatusCodes.UNAUTHORIZED,
-		);
-	}
+  if (!validatePassword) {
+    return c.json(
+      { message: HttpStatusPhrases.UNAUTHORIZED },
+      HttpStatusCodes.UNAUTHORIZED,
+    );
+  }
 
-	const payload = {
-		id: foundUser?.id,
-		workspaceId: foundUser?.workspaceId,
-		email: foundUser?.email,
-		role: foundUser?.role,
-		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 10,
-	};
+  const payload = {
+    id: foundUser?.id,
+    workspaceId: foundUser?.workspaceId,
+    email: foundUser?.email,
+    role: foundUser?.role,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 10,
+  };
 
-	const token = await sign(payload, c.env.JWT_SECRET_KEY);
-	setCookie(c, "token", token, {
-		httpOnly: true,
-		secure: c.env.NODE_ENV === "production",
-		sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
-		maxAge: 60 * 60 * 10,
-	});
+  const token = await sign(payload, c.env.JWT_SECRET_KEY);
+  setCookie(c, "token", token, {
+    httpOnly: true,
+    secure: c.env.NODE_ENV === "production",
+    sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
+    maxAge: 60 * 60 * 10,
+  });
 
-	return c.json(
-		{
-			message: HttpStatusPhrases.OK,
-			user: {
-				id: foundUser?.id,
-				workspaceId: foundUser?.workspaceId,
-				email: foundUser?.email,
-				role: foundUser?.role,
-			},
-			token,
-		},
-		HttpStatusCodes.OK,
-	);
+  return c.json(
+    {
+      message: HttpStatusPhrases.OK,
+      user: {
+        id: foundUser?.id,
+        workspaceId: foundUser?.workspaceId,
+        email: foundUser?.email,
+        role: foundUser?.role,
+      },
+      token,
+    },
+    HttpStatusCodes.OK,
+  );
 };
 
 export const logout: AppRouteHandler<LogoutRoute> = (c) => {
-	setCookie(c, "token", "", {
-		httpOnly: true,
-		secure: c.env.NODE_ENV === "production",
-		sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
-		maxAge: 0,
-	});
+  setCookie(c, "token", "", {
+    httpOnly: true,
+    secure: c.env.NODE_ENV === "production",
+    sameSite: c.env.NODE_ENV === "production" ? "None" : "Lax",
+    maxAge: 0,
+  });
 
-	return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
+  return c.json({ message: HttpStatusPhrases.OK }, HttpStatusCodes.OK);
 };
 
 export const getMe: AppRouteHandler<GetMeRoute> = async (c) => {
-	const db = createDB(c.env.DB);
-	const jwtPayload = c.get("jwtPayload");
+  const db = createDB(c.env.DB);
+  const jwtPayload = c.get("jwtPayload");
 
-	if (!jwtPayload || !jwtPayload.id) {
-		return c.json(
-			{ message: HttpStatusPhrases.UNAUTHORIZED },
-			HttpStatusCodes.UNAUTHORIZED,
-		);
-	}
+  if (!jwtPayload || !jwtPayload.id) {
+    return c.json(
+      { message: HttpStatusPhrases.UNAUTHORIZED },
+      HttpStatusCodes.UNAUTHORIZED,
+    );
+  }
 
-	const result = await db
-		.select({
-			user: users,
-			workspace: workspaces,
-		})
-		.from(users)
-		.innerJoin(workspaces, eq(users.workspaceId, workspaces.id))
-		.where(and(eq(users.id, jwtPayload.id), eq(users.isActive, true)))
-		.limit(1);
+  const result = await db
+    .select({
+      user: users,
+      workspace: workspaces,
+    })
+    .from(users)
+    .innerJoin(workspaces, eq(users.workspaceId, workspaces.id))
+    .where(and(eq(users.id, jwtPayload.id), eq(users.isActive, true)))
+    .limit(1);
 
-	const { user, workspace } = result[0];
+  const { user, workspace } = result[0];
 
-	const sanitizedUser = sanitizeUser(user);
-	return c.json(
-		{
-			...sanitizedUser,
-			workspace,
-		},
-		HttpStatusCodes.OK,
-	);
+  const sanitizedUser = sanitizeUser(user);
+  return c.json(
+    {
+      ...sanitizedUser,
+      workspace,
+    },
+    HttpStatusCodes.OK,
+  );
 };

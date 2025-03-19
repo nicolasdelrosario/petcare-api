@@ -6,34 +6,34 @@ import type { RouteConfig } from "@hono/zod-openapi";
 import type { Context } from "hono";
 
 type PermissionChecker = (
-	user: SelectUserSchema,
-	resourceId?: number,
+  user: SelectUserSchema,
+  resourceId?: number,
 ) => boolean;
 
 export function withPermission<R extends RouteConfig>(
-	handler: AppRouteHandler<R>,
-	permissionFn: PermissionChecker,
-	getResourceId?: (c: Context<Env>) => number | undefined,
+  handler: AppRouteHandler<R>,
+  permissionFn: PermissionChecker,
+  getResourceId?: (c: Context<Env>) => number | undefined,
 ): AppRouteHandler<R> {
-	return ((c, next) => {
-		const currentUser = c.get("jwtPayload");
+  return ((c, next) => {
+    const currentUser = c.get("jwtPayload");
 
-		if (!currentUser) {
-			return c.json(
-				{ message: HttpStatusPhrases.UNAUTHORIZED },
-				HttpStatusCodes.UNAUTHORIZED,
-			);
-		}
+    if (!currentUser) {
+      return c.json(
+        { message: HttpStatusPhrases.UNAUTHORIZED },
+        HttpStatusCodes.UNAUTHORIZED,
+      );
+    }
 
-		const resourceId = getResourceId ? getResourceId(c) : undefined;
+    const resourceId = getResourceId ? getResourceId(c) : undefined;
 
-		if (!permissionFn(currentUser, resourceId)) {
-			return c.json(
-				{ message: HttpStatusPhrases.FORBIDDEN },
-				HttpStatusCodes.FORBIDDEN,
-			);
-		}
+    if (!permissionFn(currentUser, resourceId)) {
+      return c.json(
+        { message: HttpStatusPhrases.FORBIDDEN },
+        HttpStatusCodes.FORBIDDEN,
+      );
+    }
 
-		return handler(c, next);
-	}) as AppRouteHandler<R>;
+    return handler(c, next);
+  }) as AppRouteHandler<R>;
 }
