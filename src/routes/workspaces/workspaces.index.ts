@@ -1,14 +1,14 @@
 import { createRouter } from "@/lib/create-app";
-import * as handlers from "./workspaces.handler";
-import * as routes from "./workspaces.routes";
 import { withPermission } from "@/permissions/create-protected-handler";
 import {
 	canCreate,
+	canDelete,
 	canGetOneById,
 	canList,
 	canPatch,
-	canDelete,
 } from "@/permissions/workspace";
+import * as handlers from "./workspaces.handler";
+import * as routes from "./workspaces.routes";
 
 export const router = createRouter()
 	.openapi(routes.list, withPermission(handlers.list, canList))
