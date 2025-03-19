@@ -39,7 +39,9 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
 
 	const payload = {
 		id: foundUser?.id,
+		workspaceId: foundUser?.workspaceId,
 		email: foundUser?.email,
+		role: foundUser?.role,
 		exp: Math.floor(Date.now() / 1000) + 60 * 60 * 10,
 	};
 
@@ -54,7 +56,12 @@ export const login: AppRouteHandler<LoginRoute> = async (c) => {
 	return c.json(
 		{
 			message: HttpStatusPhrases.OK,
-			user: { id: foundUser?.id, email: foundUser?.email },
+			user: {
+				id: foundUser?.id,
+				workspaceId: foundUser?.workspaceId,
+				email: foundUser?.email,
+				role: foundUser?.role,
+			},
 			token,
 		},
 		HttpStatusCodes.OK,
