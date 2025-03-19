@@ -11,7 +11,7 @@ export const canList = (user: SelectUserSchema) => {
 	);
 };
 
-export const canGetOne = (user: SelectUserSchema, workspaceId: number) => {
+export const canGetOneById = (user: SelectUserSchema, workspaceId: number) => {
 	return user.role === ROLE.ADMIN || user.workspaceId === workspaceId;
 };
 
